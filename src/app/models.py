@@ -21,3 +21,4 @@ class QAResponse(BaseModel):
 
     answer: str
     context: str
+    context_rationale: str | None = None 

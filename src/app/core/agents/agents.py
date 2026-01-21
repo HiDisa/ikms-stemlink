@@ -14,6 +14,7 @@ from .prompts import (
     RETRIEVAL_SYSTEM_PROMPT,
     SUMMARIZATION_SYSTEM_PROMPT,
     VERIFICATION_SYSTEM_PROMPT,
+    CONTEXT_CRITIC_SYSTEM_PROMPT,
 )
 from .state import QAState
 from .tools import retrieval_tool
@@ -32,6 +33,12 @@ retrieval_agent = create_agent(
     model=create_chat_model(),
     tools=[retrieval_tool],
     system_prompt=RETRIEVAL_SYSTEM_PROMPT,
+)
+
+context_critic_agent = create_agent(
+    model=create_chat_model(),
+    tools=[],
+    system_prompt=CONTEXT_CRITIC_SYSTEM_PROMPT,
 )
 
 summarization_agent = create_agent(
@@ -71,8 +78,53 @@ def retrieval_node(state: QAState) -> QAState:
 
     return {
         "context": context,
+        "raw_context": context,
     }
 
+def context_critic_node(state: QAState) -> QAState:
+    """Context Critic Agent node: filters and ranks retrieved chunks.
+
+    This node:
+    - Receives the question and raw retrieved context.
+    - Sends both to the Context Critic Agent.
+    - Agent analyzes each chunk for relevance.
+    - Extracts the FILTERED CONTEXT from the critic's response.
+    - Stores the full analysis in `context_rationale`.
+    - Updates `context` with only the highly relevant chunks.
+    """
+    question = state["question"]
+    raw_context = state.get("raw_context", "")
+
+    if not raw_context or raw_context.strip() == "":
+        return {
+            "context": raw_context,
+            "context_rationale": "No context to filter",
+        }
+
+    user_content = f"""Question: {question}
+
+Retrieved Chunks:
+{raw_context}
+
+Please analyze each chunk and provide filtered context."""
+
+    result = context_critic_agent.invoke(
+        {"messages": [HumanMessage(content=user_content)]}
+    )
+    messages = result.get("messages", [])
+    critic_response = _extract_last_ai_content(messages)
+
+    filtered_context = raw_context 
+    
+    if "=== FILTERED CONTEXT ===" in critic_response:
+        parts = critic_response.split("=== FILTERED CONTEXT ===")
+        if len(parts) > 1:
+            filtered_context = parts[1].strip()
+
+    return {
+        "context": filtered_context,
+        "context_rationale": critic_response,
+    }
 
 def summarization_node(state: QAState) -> QAState:
     """Summarization Agent node: generates draft answer from context.

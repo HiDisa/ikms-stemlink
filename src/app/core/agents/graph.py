@@ -6,7 +6,7 @@ from typing import Any, Dict
 from langgraph.constants import END, START
 from langgraph.graph import StateGraph
 
-from .agents import retrieval_node, summarization_node, verification_node
+from .agents import retrieval_node, context_critic_node, summarization_node, verification_node 
 from .state import QAState
 
 
@@ -25,12 +25,14 @@ def create_qa_graph() -> Any:
 
     # Add nodes for each agent
     builder.add_node("retrieval", retrieval_node)
+    builder.add_node("context_critic", context_critic_node)
     builder.add_node("summarization", summarization_node)
     builder.add_node("verification", verification_node)
 
     # Define linear flow: START -> retrieval -> summarization -> verification -> END
     builder.add_edge(START, "retrieval")
-    builder.add_edge("retrieval", "summarization")
+    builder.add_edge("retrieval", "context_critic")  # 🆕 NEW: Insert critic after retrieval
+    builder.add_edge("context_critic", "summarization")  # 🆕 NEW: Critic feeds into summarization
     builder.add_edge("summarization", "verification")
     builder.add_edge("verification", END)
 
@@ -65,6 +67,8 @@ def run_qa_flow(question: str) -> Dict[str, Any]:
     initial_state: QAState = {
         "question": question,
         "context": None,
+        "raw_context": None,
+        "context_rationale": None,
         "draft_answer": None,
         "answer": None,
     }
