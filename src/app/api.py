@@ -7,7 +7,10 @@ from .models import QuestionRequest, QAResponse
 from .services.qa_service import answer_question
 from .services.indexing_service import index_pdf_file
 
+from fastapi.responses import JSONResponse, HTMLResponse 
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from pathlib import Path
 
 app = FastAPI(
     title="Class 12 Multi-Agent RAG Demo",
@@ -26,6 +29,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/", response_class=HTMLResponse)
+async def serve_frontend():
+    """Serve the frontend HTML file."""
+    frontend_path = Path(__file__).parent.parent.parent / "frontend" / "index.html"
+    if frontend_path.exists():
+        return HTMLResponse(content=frontend_path.read_text(), status_code=200)
+    return HTMLResponse(content="<h1>Frontend not found</h1>", status_code=404)
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(

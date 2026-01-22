@@ -20,8 +20,23 @@ def _get_vector_store() -> PineconeVectorStore:
     """Create a PineconeVectorStore instance configured from settings."""
     settings = get_settings()
 
-    pc = Pinecone(api_key=settings.pinecone_api_key)
-    index = pc.Index(settings.pinecone_index_name)
+    try:
+        pc = Pinecone(api_key=settings.pinecone_api_key)
+        existing_indexes = [idx.name for idx in pc.list_indexes()]
+    
+        if settings.pinecone_index_name not in existing_indexes:
+            from pinecone import ServerlessSpec
+            pc.create_index(
+                name=settings.pinecone_index_name,
+                dimension=1536,
+                metric='cosine',
+                spec=ServerlessSpec(cloud='aws', region='us-east-1')
+            )
+        
+        index = pc.Index(settings.pinecone_index_name)
+    except Exception as e:
+        print(f"Pinecone connection error: {e}")
+        raise
 
     embeddings = OpenAIEmbeddings(
         model=settings.openai_embedding_model_name,
