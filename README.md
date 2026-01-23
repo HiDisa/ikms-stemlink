@@ -1,3 +1,14 @@
+---
+# FEATURE 3 IMPLEMENTATION - CONTEXT CRITIC AGENT
+
+**Implemented by:** Disara Ransini 
+**Submission Date:** January 21, 2026  
+**Feature:** Context Critic & Reranker Agent
+
+This implementation adds an intelligent Context Critic agent that filters retrieved chunks before answer generation. [See full documentation here](./FEATURE_3_IMPLEMENTATION.md)
+
+---
+
 # Building a Knowledge-Based Q&A Application with
 
 # LangChain and Pinecone
