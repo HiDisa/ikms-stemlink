@@ -1,4 +1,3 @@
----
 # FEATURE 3 IMPLEMENTATION - CONTEXT CRITIC AGENT
 
 **Implemented by:** Disara Ransini 
@@ -7,7 +6,6 @@
 
 This implementation adds an intelligent Context Critic agent that filters retrieved chunks before answer generation. [See full documentation here](./FEATURE_3_IMPLEMENTATION.md)
 
----
 
 # Building a Knowledge-Based Q&A Application with
 
