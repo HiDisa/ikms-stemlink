@@ -317,40 +317,46 @@
             let kept = 0;
             let filtered = 0;
 
-            if (!contextRationale) {
+            if (!contextRationale || !contextRationale.includes("=== ANALYSIS ===")) {
                 return { chunks: [], totalRetrieved: 0, kept: 0, filtered: 0 };
             }
 
-            const analysisMatch = contextRationale.match(/=== ANALYSIS ===([\s\S]*?)(?:=== FILTERED CONTEXT ===|$)/);
-            
-            if (analysisMatch) {
-                const analysisText = analysisMatch[1];
-                const chunkPattern = /Chunk \d+ \(.*?\): \[(.*?)\] (HIGHLY RELEVANT|MARGINAL|IRRELEVANT)\s*Rationale: (.*?)(?=\n\nChunk|\n*$)/gs;
+            const sections = contextRationale.split(/Chunk \d+/);
+            sections.shift();
+
+            sections.forEach((section, index) => {
+                totalRetrieved++;
                 
-                let match;
-                while ((match = chunkPattern.exec(analysisText)) !== null) {
-                    const [, emoji, relevance, rationale] = match;
-                    totalRetrieved++;
-                    
-                    let type = 'relevant';
-                    if (relevance === 'MARGINAL') {
-                        type = 'marginal';
-                        kept++;
-                    } else if (relevance === 'IRRELEVANT') {
-                        type = 'irrelevant';
-                        filtered++;
-                    } else {
-                        type = 'relevant';
-                        kept++;
-                    }
-                    
-                    chunks.push({
-                        label: `Chunk ${chunks.length + 1}: ${emoji} ${relevance}`,
-                        type: type,
-                        rationale: rationale.trim()
-                    });
+                const isIrrelevant = section.toUpperCase().includes("IRRELEVANT");
+                const isMarginal = section.toUpperCase().includes("MARGINAL");
+                const isHighlyRelevant = section.toUpperCase().includes("HIGHLY RELEVANT");
+
+                let type = 'relevant';
+                let statusText = 'HIGHLY RELEVANT';
+
+                if (isIrrelevant) {
+                    type = 'irrelevant';
+                    statusText = 'IRRELEVANT';
+                    filtered++;
+                } else if (isMarginal) {
+                    type = 'marginal';
+                    statusText = 'MARGINAL';
+                    kept++;
+                } else {
+                    type = 'relevant';
+                    statusText = 'HIGHLY RELEVANT';
+                    kept++;
                 }
-            }
+
+                const rationaleMatch = section.match(/Rationale:\s*([\s\S]*?)(?===|$)/i);
+                const rationale = rationaleMatch ? rationaleMatch[1].trim() : "Analysis provided in logs.";
+
+                chunks.push({
+                    label: `Chunk ${index + 1}: [${statusText}]`,
+                    type: type,
+                    rationale: rationale
+                });
+            });
 
             return { chunks, totalRetrieved, kept, filtered };
         }
