@@ -96,7 +96,7 @@ Built a clean, responsive web interface that shows:
 2. Create virtual environment:
 ```bash
    python -m venv venv
-   venv\Scripts\activate  # Windows
+   venv\Scripts\activate 
 ```
 3. Install dependencies:
 ```bash
@@ -124,6 +124,49 @@ Built a clean, responsive web interface that shows:
 4. Ask questions through the UI!
 
 ---
+
+# Deployment
+
+The IKMS Context Critic system is deployed and accessible on the following platforms.
+
+## Railway Deployment
+
+The backend API is hosted on Railway.
+
+**Live URL:**
+https://ikms-context-critic-production-0010.up.railway.app/
+
+**API Documentation (Swagger):**
+https://ikms-context-critic-production-0010.up.railway.app/docs
+
+**Deployment Details**
+- Platform: Railway
+- Deployment Method: GitHub integration
+- Auto-build and auto-deploy enabled
+- Environment variables configured:
+  - OPENAI_API_KEY
+  - PINECONE_API_KEY
+  - PINECONE_ENVIRONMENT
+  - PINECONE_INDEX_NAME
+- Start command:
+uvicorn src.app.api:app --host 0.0.0.0 --port $PORT
+
+
+---
+
+## Hugging Face Spaces Deployment
+
+The full application is also deployed using Docker on Hugging Face Spaces.
+
+**Live URL:**
+https://huggingface.co/spaces/Disara02/ikms-context-critic
+
+**Deployment Details**
+- Platform: Hugging Face Spaces
+- SDK: Docker
+- Port: 7860
+- Environment variables configured for secure API access
+- Supports persistent agent-based RAG workflows
 
 ## Example Usage
 
@@ -161,15 +204,3 @@ Built a clean, responsive web interface that shows:
 
 ---
 
-## Future Enhancements
-
-- Adaptive filtering thresholds based on question complexity
-- Integration with citation system (Feature 4)
-- A/B testing to measure impact on answer quality
-- Support for multi-lingual filtering
-
----
-
-## Conclusion
-
-The Context Critic agent successfully improves the IKMS system by intelligently filtering retrieved content before answer generation. The implementation demonstrates understanding of multi-agent coordination, prompt engineering, and state management in LangGraph.
