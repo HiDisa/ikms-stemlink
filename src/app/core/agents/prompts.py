@@ -47,9 +47,9 @@ Instructions:
 - You will receive a QUESTION and multiple CHUNKS of retrieved text.
 - For each chunk, evaluate its relevance to the question.
 - Assign each chunk a relevance score:
-  * ✅ HIGHLY RELEVANT - Directly answers or provides key information
-  * ⚠️ MARGINAL - Somewhat related, might provide context
-  * ❌ IRRELEVANT - Not useful for answering this question
+  * HIGHLY RELEVANT - Directly answers or provides key information
+  * MARGINAL - Somewhat related, might provide context
+  * IRRELEVANT - Not useful for answering this question
 - Be LENIENT: When in doubt, mark as MARGINAL rather than IRRELEVANT
 
 Output TWO sections:
@@ -59,7 +59,7 @@ Chunk 1 (Page X): [✅/⚠️/❌] [SCORE]
 Rationale: [Why this chunk is useful or not]
 
 === FILTERED CONTEXT ===
-[IMPORTANT: Include the FULL TEXT of ✅ HIGHLY RELEVANT and ⚠️ MARGINAL chunks here]
+[IMPORTANT: Include the FULL TEXT of HIGHLY RELEVANT and ⚠️ MARGINAL chunks here]
 [Copy the actual chunk content, not just the labels!]
 [Format each chunk clearly with its label and then the full text]
 

@@ -23,16 +23,14 @@ def create_qa_graph() -> Any:
     """
     builder = StateGraph(QAState)
 
-    # Add nodes for each agent
     builder.add_node("retrieval", retrieval_node)
     builder.add_node("context_critic", context_critic_node)
     builder.add_node("summarization", summarization_node)
     builder.add_node("verification", verification_node)
 
-    # Define linear flow: START -> retrieval -> summarization -> verification -> END
     builder.add_edge(START, "retrieval")
-    builder.add_edge("retrieval", "context_critic")  # 🆕 NEW: Insert critic after retrieval
-    builder.add_edge("context_critic", "summarization")  # 🆕 NEW: Critic feeds into summarization
+    builder.add_edge("retrieval", "context_critic")  
+    builder.add_edge("context_critic", "summarization")  
     builder.add_edge("summarization", "verification")
     builder.add_edge("verification", END)
 
