@@ -28,7 +28,6 @@ def _extract_last_ai_content(messages: List[object]) -> str:
     return ""
 
 
-# Define agents at module level for reuse
 retrieval_agent = create_agent(
     model=create_chat_model(),
     tools=[retrieval_tool],
@@ -65,12 +64,15 @@ def retrieval_node(state: QAState) -> QAState:
     """
     question = state["question"]
 
-    result = retrieval_agent.invoke({"messages": [HumanMessage(content=question)]})
-
+    try:
+        result = retrieval_agent.invoke({"messages": [HumanMessage(content=question)]})
+    except Exception as e:
+        print(f"LLM Error: {e}") 
+        raise e
+    
     messages = result.get("messages", [])
     context = ""
 
-    # Prefer the last ToolMessage content (from retrieval_tool)
     for msg in reversed(messages):
         if isinstance(msg, ToolMessage):
             context = str(msg.content)
